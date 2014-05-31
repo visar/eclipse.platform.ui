@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchEncoding;
@@ -83,6 +84,9 @@ public class IDEWorkspacePreferencePage extends PreferencePage
 	private RadioGroupFieldEditor openReferencesEditor;
 
 	private StringFieldEditor systemExplorer;
+	
+	// Max value width in characters before wrapping
+	private static final int MAX_VALUE_WIDTH = 80;
 
     /*
      * (non-Javadoc)
@@ -105,6 +109,8 @@ public class IDEWorkspacePreferencePage extends PreferencePage
         
 		Label space = new Label(composite,SWT.NONE);
 		space.setLayoutData(new GridData());
+		
+        createWindowWorkspaceLocation(composite);
 		
         createAutoBuildPref(composite);
         createAutoRefreshControls(composite);
@@ -174,6 +180,38 @@ public class IDEWorkspacePreferencePage extends PreferencePage
         autoSaveAllButton.setSelection(getIDEPreferenceStore().getBoolean(
                 IDEInternalPreferences.SAVE_ALL_BEFORE_BUILD));
     }
+	
+	protected void createWindowWorkspaceLocation(Composite composite) {
+		Composite messageComposite = new Composite(composite, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		messageComposite.setLayout(layout);
+		messageComposite.setLayoutData(new GridData(
+				GridData.HORIZONTAL_ALIGN_FILL));
+
+		final Label workspaceLocationLabel = new Label(messageComposite, SWT.WRAP);
+		workspaceLocationLabel
+				.setText(IDEWorkbenchMessages.IDEWorkspacePreference_workspaceLocation);
+		workspaceLocationLabel.setLayoutData(new GridData(
+				GridData.VERTICAL_ALIGN_BEGINNING));
+
+		String workspaceLocation = ResourcesPlugin.getWorkspace().getRoot()
+				.getLocation().toString();
+
+		Text workspaceLocationText = new Text(messageComposite, SWT.WRAP
+				| SWT.READ_ONLY);
+		workspaceLocationText.setText(workspaceLocation);
+		
+		GridData gd = new GridData();
+		gd.widthHint = convertWidthInCharsToPixels(MAX_VALUE_WIDTH);
+		gd.grabExcessHorizontalSpace = true;
+		gd.horizontalAlignment = GridData.FILL;
+		workspaceLocationText.setLayoutData(gd);
+		workspaceLocationText.setBackground(workspaceLocationText.getDisplay().getSystemColor(
+				SWT.COLOR_WIDGET_BACKGROUND));
+	}
 
     protected void createAutoBuildPref(Composite composite) {
         autoBuildButton = new Button(composite, SWT.CHECK);
