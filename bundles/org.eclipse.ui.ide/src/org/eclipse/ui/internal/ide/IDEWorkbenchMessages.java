@@ -235,6 +235,7 @@ public class IDEWorkbenchMessages extends NLS {
 	public static String MoveProjectAction_toolTip;
 	public static String MoveProjectAction_moveTitle;
 	public static String MoveProjectAction_dialogTitle;
+	public static String MoveProjectAction_nonEmptyDestination;
 	public static String MoveProjectAction_internalError;
 
 	public static String MoveResourceAction_text;

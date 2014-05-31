@@ -16,7 +16,10 @@ package org.eclipse.ui.dialogs;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.JFaceColors;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -66,6 +69,13 @@ public class ProjectLocationMoveDialog extends SelectionDialog {
 	public void setMessage(String message) {
 		super.setMessage(message);
 		if (statusMessageLabel != null) {
+			try {
+				IFileStore fileStore = EFS.getStore(locationArea.getProjectLocationURI());
+				if (fileStore.childNames(EFS.NONE, null).length > 0 && message == null) {
+					message = IDEWorkbenchMessages.MoveProjectAction_nonEmptyDestination;
+				}
+			} catch (CoreException ex) {
+			}
 			if (message == null) {
 				statusMessageLabel.setText("");//$NON-NLS-1$
 				statusMessageLabel.setToolTipText("");//$NON-NLS-1$
@@ -137,7 +147,6 @@ public class ProjectLocationMoveDialog extends SelectionDialog {
 			 */
 			public void reportError(String errorMessage, boolean notError) {
 				setMessage(errorMessage);
-				
 			}
 		};
 	}
