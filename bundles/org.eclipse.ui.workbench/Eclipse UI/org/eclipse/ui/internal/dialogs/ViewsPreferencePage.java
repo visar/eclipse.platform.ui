@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Erik Chou <ekchou@ymail.com> - Bug 425962
+ *     Gen Suzuki <gsuzuki2@bloomberg.net> - Bug 430870
  *******************************************************************************/
 
 package org.eclipse.ui.internal.dialogs;
@@ -358,13 +359,12 @@ public class ViewsPreferencePage extends PreferencePage implements
 				.setText(WorkbenchMessages.ViewsPreference_currentThemeDescription);
 
 		colorsAndFontsThemeDescriptionText = new Text(parent, SWT.H_SCROLL | SWT.V_SCROLL
-				| SWT.READ_ONLY
-				| SWT.BORDER | SWT.WRAP);
-		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
-		// give a height hint that'll show at least two lines (and let the
+				| SWT.READ_ONLY | SWT.BORDER | SWT.WRAP);
+		GridData layoutData = new GridData(SWT.FILL, SWT.TOP, true, false);
+		// give a height hint that'll show at least three lines (and let the
 		// scroll bars draw nicely if necessary)
 		GC gc = new GC(parent);
-		layoutData.heightHint = Dialog.convertHeightInCharsToPixels(gc.getFontMetrics(), 2);
+		layoutData.heightHint = Dialog.convertHeightInCharsToPixels(gc.getFontMetrics(), 3);
 		gc.dispose();
 		colorsAndFontsThemeDescriptionText.setLayoutData(layoutData);
 	}
@@ -451,15 +451,24 @@ public class ViewsPreferencePage extends PreferencePage implements
 	}
 
 	private void refreshColorsAndFontsThemeDescriptionText(ColorsAndFontsTheme theme) {
-		String description = ""; //$NON-NLS-1$
-		IThemeDescriptor[] descs = WorkbenchPlugin.getDefault().getThemeRegistry().getThemes();
-		
-		for (int i = 0; theme != null && description == null && i < descs.length; i++) {
-			if (descs[i].getId().equals(theme.getId())) {
-				description = descs[i].getDescription();
+		IThemeDescriptor themeDescriptor = null;
+
+		// Find the theme descriptor associated to the selected theme
+		if (theme != null) {
+			IThemeDescriptor[] descs = WorkbenchPlugin.getDefault().getThemeRegistry().getThemes();
+
+			for (IThemeDescriptor desc : descs) {
+				if (desc.getId().equals(theme.getId())) {
+					themeDescriptor = desc;
+				}
 			}
 		}
-		colorsAndFontsThemeDescriptionText.setText(description);
+
+		if (themeDescriptor == null || themeDescriptor.getDescription() == null) {
+			colorsAndFontsThemeDescriptionText.setText(""); //$NON-NLS-1$
+		} else {
+			colorsAndFontsThemeDescriptionText.setText(themeDescriptor.getDescription());
+		}
 	}
 
 	private ColorsAndFontsTheme getSelectedColorsAndFontsTheme() {
