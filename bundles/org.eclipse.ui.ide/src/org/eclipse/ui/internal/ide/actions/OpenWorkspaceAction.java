@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Charles Bailey <cbailey32@bloomberg.net>,
+ *     Henry Kleynhans <hkleynhans@bloomberg.net> - Bug 264072
  *******************************************************************************/
 package org.eclipse.ui.internal.ide.actions;
 
@@ -33,6 +35,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.internal.handlers.RestartWorkbenchHandler;
 import org.eclipse.ui.internal.ide.ChooseWorkspaceData;
 import org.eclipse.ui.internal.ide.ChooseWorkspaceDialog;
 import org.eclipse.ui.internal.ide.ChooseWorkspaceWithSettingsDialog;
@@ -105,20 +108,6 @@ public class OpenWorkspaceAction extends Action implements
 	}
 
 	private static final String PROP_VM = "eclipse.vm"; //$NON-NLS-1$
-
-	private static final String PROP_VMARGS = "eclipse.vmargs"; //$NON-NLS-1$
-
-	private static final String PROP_COMMANDS = "eclipse.commands"; //$NON-NLS-1$
-
-	private static final String PROP_EXIT_CODE = "eclipse.exitcode"; //$NON-NLS-1$
-
-	private static final String PROP_EXIT_DATA = "eclipse.exitdata"; //$NON-NLS-1$
-
-	private static final String CMD_DATA = "-data"; //$NON-NLS-1$
-
-	private static final String CMD_VMARGS = "-vmargs"; //$NON-NLS-1$
-
-	private static final String NEW_LINE = "\n"; //$NON-NLS-1$
 
 	private IWorkbenchWindow window;
 	
@@ -272,14 +261,11 @@ public class OpenWorkspaceAction extends Action implements
 	 * @since 3.3
 	 */
 	private void restart(String path) {
-		String command_line = buildCommandLine(path);
-		if (command_line == null) {
+		if (!canRelaunch()) {
 			return;
 		}
-
-		System.setProperty(PROP_EXIT_CODE, Integer.toString(24));
-		System.setProperty(PROP_EXIT_DATA, command_line);
-		window.getWorkbench().restart();
+		
+		RestartWorkbenchHandler.restart(path);
 	}
 
 	/**
@@ -307,15 +293,11 @@ public class OpenWorkspaceAction extends Action implements
 	}
 
 	/**
-	 * Create and return a string with command line options for eclipse.exe that
-	 * will launch a new workbench that is the same as the currently running
-	 * one, but using the argument directory as its workspace.
+	 * Check if we have the eclipse.vm property set in order to re-launch.
 	 * 
-	 * @param workspace
-	 *            the directory to use as the new workspace
-	 * @return a string of command line options or null on error
+	 * @return <code>true</code> if the property has been set.
 	 */
-	private String buildCommandLine(String workspace) {
+	private boolean canRelaunch() {
 		String property = System.getProperty(PROP_VM);
 		if (property == null) {
 			MessageDialog
@@ -326,53 +308,10 @@ public class OpenWorkspaceAction extends Action implements
 									.bind(
 											IDEWorkbenchMessages.OpenWorkspaceAction_errorMessage,
 											PROP_VM));
-			return null;
+			return false;
 		}
-
-		StringBuffer result = new StringBuffer(512);
-		result.append(property);
-		result.append(NEW_LINE);
-
-		// append the vmargs and commands. Assume that these already end in \n
-		String vmargs = System.getProperty(PROP_VMARGS);
-		if (vmargs != null) {
-			result.append(vmargs);
-		}
-
-		// append the rest of the args, replacing or adding -data as required
-		property = System.getProperty(PROP_COMMANDS);
-		if (property == null) {
-			result.append(CMD_DATA);
-			result.append(NEW_LINE);
-			result.append(workspace);
-			result.append(NEW_LINE);
-		} else {
-			// find the index of the arg to replace its value
-			int cmd_data_pos = property.lastIndexOf(CMD_DATA);
-			if (cmd_data_pos != -1) {
-				cmd_data_pos += CMD_DATA.length() + 1;
-				result.append(property.substring(0, cmd_data_pos));
-				result.append(workspace);
-				result.append(property.substring(property.indexOf('\n',
-						cmd_data_pos)));
-			} else {
-				result.append(CMD_DATA);
-				result.append(NEW_LINE);
-				result.append(workspace);
-				result.append(NEW_LINE);
-				result.append(property);
-			}
-		}
-
-		// put the vmargs back at the very end (the eclipse.commands property
-		// already contains the -vm arg)
-		if (vmargs != null) {
-			result.append(CMD_VMARGS);
-			result.append(NEW_LINE);
-			result.append(vmargs);
-		}
-
-		return result.toString();
+		
+		return true;
 	}
 
 	/*
