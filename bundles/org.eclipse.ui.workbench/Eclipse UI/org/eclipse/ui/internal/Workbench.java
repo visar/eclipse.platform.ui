@@ -1450,6 +1450,11 @@ public final class Workbench extends EventManager implements IWorkbench,
 			return null;
 		}
 
+		if (activeWindow != null && activeWindow.getContext() != null
+				&& activeWindow.getContext().containsKey(IWorkbenchWindow.class)) {
+			return activeWindow.getContext().get(IWorkbenchWindow.class);
+		}
+
 		return createWorkbenchWindow(getDefaultPageInput(), getPerspectiveRegistry()
 				.findPerspectiveWithId(getPerspectiveRegistry().getDefaultPerspective()),
 				activeWindow, false);
