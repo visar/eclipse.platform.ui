@@ -64,6 +64,8 @@ public class MinMaxAddon {
 
 	private static final String GLOBAL_CACHE_ID = "Global"; //$NON-NLS-1$
 
+	private static final String NO_MIN_MAX = "noMinMax"; //$NON-NLS-1$
+
 	static String ID_SUFFIX = "(minimized)"; //$NON-NLS-1$
 
 	// tags representing the min/max state (h
@@ -203,7 +205,7 @@ public class MinMaxAddon {
 		if (!(changedElement instanceof MPartStack) && !(changedElement instanceof MArea))
 			return;
 
-		if (!changedElement.getTags().contains("noMinMax")) { //$NON-NLS-1$
+		if (!changedElement.getTags().contains(NO_MIN_MAX)) {
 			return;
 		}
 
