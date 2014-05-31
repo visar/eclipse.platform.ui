@@ -13,7 +13,6 @@ package org.eclipse.ui.internal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -21,6 +20,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.misc.Policy;
@@ -248,9 +248,10 @@ public class WorkingSet extends AbstractWorkingSet {
 	 */
 	@Override
 	public void setElements(IAdaptable[] newElements) {
+		IWorkingSet oldInstance = getCurrentStateObject();
 		internalSetElements(newElements);
 		fireWorkingSetChanged(
-				IWorkingSetManager.CHANGE_WORKING_SET_CONTENT_CHANGE, null);
+				IWorkingSetManager.CHANGE_WORKING_SET_CONTENT_CHANGE, oldInstance);
 	}
 
 	/*

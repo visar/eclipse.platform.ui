@@ -12,7 +12,6 @@
 package org.eclipse.ui.internal;
 
 import java.util.ArrayList;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
@@ -101,14 +100,29 @@ public abstract class AbstractWorkingSet implements IAdaptable, IWorkingSet {
 						"working set with same name already registered"); //$NON-NLS-1$
 			}
 	    }
-	    
+		IWorkingSet oldInstance = getCurrentStateObject();
 	    name = newName;
 
-	    fireWorkingSetChanged(IWorkingSetManager.CHANGE_WORKING_SET_NAME_CHANGE, null);
+		fireWorkingSetChanged(IWorkingSetManager.CHANGE_WORKING_SET_NAME_CHANGE, oldInstance);
 	    
 	    if (labelBoundToName) {
 	    		setLabel(newName);
 	    }
+	}
+
+	/**
+	 * Returns a clone of the current working set
+	 * 
+	 * @return {@link IWorkingSet} the working set
+	 */
+	protected IWorkingSet getCurrentStateObject() {
+		IWorkingSet oldInstance = null;
+		try {
+			oldInstance = (IWorkingSet) this.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return oldInstance;
 	}
 
 	/**
@@ -189,11 +203,12 @@ public abstract class AbstractWorkingSet implements IAdaptable, IWorkingSet {
 
 	@Override
 	public void setLabel(String label) {
+		IWorkingSet oldInstance = getCurrentStateObject();
 		this.label = label == null ? getName() : label;
 		labelBoundToName = Util.equals(label, name);  // rebind the label to the name
 		
 		fireWorkingSetChanged(
-				IWorkingSetManager.CHANGE_WORKING_SET_LABEL_CHANGE, null);
+				IWorkingSetManager.CHANGE_WORKING_SET_LABEL_CHANGE, oldInstance);
 	}
 	
 	@Override
@@ -225,6 +240,18 @@ public abstract class AbstractWorkingSet implements IAdaptable, IWorkingSet {
 	 */
 	/*package*/void setUniqueId(String uniqueId) {
 		this.uniqueId = uniqueId;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		AbstractWorkingSet clone = (AbstractWorkingSet) super.clone();
+		clone.disconnect();
+		return clone;
 	}
        
 }

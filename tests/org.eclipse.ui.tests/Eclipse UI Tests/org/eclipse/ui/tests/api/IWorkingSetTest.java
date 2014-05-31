@@ -15,7 +15,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
@@ -37,11 +40,18 @@ public class IWorkingSetTest extends UITestCase {
 
     IWorkingSet fWorkingSet;
 
+	public String fChangeProperty;
+
+	public IWorkingSet fChangeNewValue;
+
+	public IWorkingSet fChangeOldValue;
+
     public IWorkingSetTest(String testName) {
         super(testName);
     }
 
-    protected void doSetUp() throws Exception {
+    @Override
+	protected void doSetUp() throws Exception {
         super.doSetUp();
         IWorkingSetManager workingSetManager = fWorkbench
                 .getWorkingSetManager();
@@ -52,6 +62,7 @@ public class IWorkingSetTest extends UITestCase {
         
         workingSetManager.addWorkingSet(fWorkingSet);
     }
+	@Override
 	protected void doTearDown() throws Exception {
 		IWorkingSetManager workingSetManager = fWorkbench
         .getWorkingSetManager();
@@ -203,11 +214,60 @@ public class IWorkingSetTest extends UITestCase {
 		}
 		assertTrue(exceptionThrown);
 	}
-    
+
+	public void testBug37183() throws CoreException {
+
+		class TestPropertyChangeListener implements IPropertyChangeListener {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				fChangeProperty = event.getProperty();
+				fChangeNewValue = (IWorkingSet) event.getNewValue();
+				fChangeOldValue = (IWorkingSet) event.getOldValue();
+			}
+		}
+		fChangeOldValue = null;
+		IPropertyChangeListener workingSetListener = new TestPropertyChangeListener();
+		fWorkbench.getWorkingSetManager().addPropertyChangeListener(
+				workingSetListener);
+
+		assertEquals(WORKING_SET_NAME_1, fWorkingSet.getLabel());
+		fWorkingSet.setLabel(WORKING_SET_NAME_2);
+		assertNotNull(fChangeOldValue);
+		assertEquals(WORKING_SET_NAME_1, fChangeOldValue.getLabel());
+		assertEquals(WORKING_SET_NAME_2, fWorkingSet.getLabel());
+
+		fChangeOldValue = null;
+		assertEquals(WORKING_SET_NAME_1, fWorkingSet.getName());
+		fWorkingSet.setName(WORKING_SET_NAME_2);
+		assertNotNull(fChangeOldValue);
+		assertEquals(WORKING_SET_NAME_1, fChangeOldValue.getName());
+		assertEquals(WORKING_SET_NAME_2, fChangeOldValue.getLabel());
+
+		IProject p1 = FileUtil.createProject("TP1");
+		IFile f1 = FileUtil.createFile("f1.txt", p1);
+		fChangeOldValue = null;
+		assertEquals(1, fWorkingSet.getElements().length);
+		assertEquals(WORKING_SET_NAME_2, fWorkingSet.getName());
+		assertEquals(WORKING_SET_NAME_2, fWorkingSet.getLabel());
+		IAdaptable[] elements = new IAdaptable[] { f1, p1 };
+		fWorkingSet.setElements(elements);
+		assertNotNull(fChangeOldValue);
+		assertEquals(1, fChangeOldValue.getElements().length);
+		assertEquals(WORKING_SET_NAME_2, fChangeOldValue.getName());
+		assertEquals(WORKING_SET_NAME_2, fChangeOldValue.getLabel());
+		assertEquals(2, fWorkingSet.getElements().length);
+		assertEquals(WORKING_SET_NAME_2, fWorkingSet.getName());
+		assertEquals(WORKING_SET_NAME_2, fWorkingSet.getLabel());
+
+		fWorkbench.getWorkingSetManager().removePropertyChangeListener(
+				workingSetListener);
+	}
+
     public void testIsEmpty() {
 		fWorkingSet.setElements(new IAdaptable[] {});
 		assertTrue(fWorkingSet.isEmpty());
 		fWorkingSet.setElements(new IAdaptable[] { new IAdaptable() {
+			@Override
 			public Object getAdapter(Class adapter) {
 				return null;
 			}
@@ -313,6 +373,7 @@ public class IWorkingSetTest extends UITestCase {
 		/* (non-Javadoc)
 		 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
 		 */
+		@Override
 		public Object getAdapter(Class adapter) {
 			// TODO Auto-generated method stub
 			return null;
@@ -328,6 +389,7 @@ public class IWorkingSetTest extends UITestCase {
 		/* (non-Javadoc)
 		 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
 		 */
+		@Override
 		public Object getAdapter(Class adapter) {
 			if (adapter == Foo.class) {
 				return new Foo() {};
@@ -342,6 +404,7 @@ public class IWorkingSetTest extends UITestCase {
 		/* (non-Javadoc)
 		 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
 		 */
+		@Override
 		public Object getAdapter(Class adapter) {
 			// TODO Auto-generated method stub
 			return null;
@@ -353,6 +416,7 @@ public class IWorkingSetTest extends UITestCase {
 		/* (non-Javadoc)
 		 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
 		 */
+		@Override
 		public Object getAdapter(Class adapter) {
 			return null;
 		}
