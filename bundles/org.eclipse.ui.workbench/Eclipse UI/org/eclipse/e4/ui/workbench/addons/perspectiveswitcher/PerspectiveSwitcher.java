@@ -15,7 +15,9 @@ package org.eclipse.e4.ui.workbench.addons.perspectiveswitcher;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -673,6 +675,8 @@ public class PerspectiveSwitcher {
 			addCloseItem(menu);
 		}
 
+		addNewWindowItem(menu);
+
 		new MenuItem(menu, SWT.SEPARATOR);
 		// addDockOnSubMenu(menu);
 		addShowTextItem(menu);
@@ -724,6 +728,32 @@ public class PerspectiveSwitcher {
 		page.closePerspective(desc, perspectiveId, true, false);
 
 		// removePerspectiveItem(persp);
+	}
+
+	private void addNewWindowItem(final Menu menu) {
+		MenuItem menuItem = new MenuItem(menu, SWT.NONE);
+		menuItem.setText(WorkbenchMessages.WorkbenchWindow_newWindow);
+		menuItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MPerspective persp = (MPerspective) menu.getData();
+				if (persp != null)
+					openPerspectiveNewWindow(persp);
+			}
+		});
+	}
+
+	private void openPerspectiveNewWindow(MPerspective persp) {
+		// let the handler perform the work to consolidate all the code
+		Map<String, Object> parameterMap = new HashMap<String, Object>();
+		String perspectiveId = persp.getElementId();
+		parameterMap.put(IWorkbenchCommandConstants.PERSPECTIVES_SHOW_PERSPECTIVE_PARM_ID,
+				perspectiveId);
+		parameterMap.put(IWorkbenchCommandConstants.PERSPECTIVES_SHOW_PERSPECTIVE_PARM_NEWWINDOW,
+				"true"); //$NON-NLS-1$
+		ParameterizedCommand command = commandService.createCommand(
+				IWorkbenchCommandConstants.PERSPECTIVES_SHOW_PERSPECTIVE, parameterMap);
+		handlerService.executeHandler(command);
 	}
 
 	private void addSaveAsItem(final Menu menu) {
