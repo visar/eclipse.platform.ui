@@ -21,6 +21,10 @@ public interface ICTabRendering {
 
 	void setUnselectedTabsColor(Color[] colors, int[] percents);
 
+	void setUnselectedTabBackgroundColor(Color color);
+
+	void setUnselectedTabBackgroundColors(Color[] colors, int[] percents);
+
 	void setTabOutline(Color color);
 
 	void setInnerKeyline(Color color);

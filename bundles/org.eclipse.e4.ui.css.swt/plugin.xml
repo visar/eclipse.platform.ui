@@ -432,6 +432,14 @@
       <handler
             adapter="org.eclipse.e4.ui.css.swt.dom.CTabFolderElement"
             composite="false"
+            handler="org.eclipse.e4.ui.css.swt.properties.custom.CSSPropertye4UnselectedTabBackgroundHandler">
+         <property-name
+               name="swt-unselected-tab-background">
+         </property-name>
+      </handler>
+      <handler
+            adapter="org.eclipse.e4.ui.css.swt.dom.CTabFolderElement"
+            composite="false"
             handler="org.eclipse.e4.ui.css.swt.properties.custom.CSSPropertye4TabOutline">
          <property-name
                name="swt-tab-outline">
