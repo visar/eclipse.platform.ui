@@ -203,6 +203,10 @@ public class MinMaxAddon {
 		if (!(changedElement instanceof MPartStack) && !(changedElement instanceof MArea))
 			return;
 
+		if (!changedElement.getTags().contains("noMinMax")) { //$NON-NLS-1$
+			return;
+		}
+
 		final CTabFolder ctf = getCTFFor(changedElement);
 		if (ctf == null)
 			return;
