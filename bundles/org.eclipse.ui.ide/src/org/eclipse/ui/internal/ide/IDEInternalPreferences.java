@@ -21,6 +21,9 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 public interface IDEInternalPreferences {
     // (boolean) Save all dirty editors before running a full or incremental build 
     public static final String SAVE_ALL_BEFORE_BUILD = "SAVE_ALL_BEFORE_BUILD"; //$NON-NLS-1$
+    
+   // (boolean) Save all dirty editors before running a full or incremental build 
+    public static final String WORKSPACE_LOCATION_PREF = "WORKSPACE_LOCATION_PREF"; //$NON-NLS-1$
 
     // (boolean) Refresh workspace on startup 
     public static final String REFRESH_WORKSPACE_ON_STARTUP = "REFRESH_WORKSPACE_ON_STARTUP"; //$NON-NLS-1$

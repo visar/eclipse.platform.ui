@@ -61,6 +61,8 @@ public class IDEWorkspacePreferencePage extends PreferencePage
         implements IWorkbenchPreferencePage{
 
 	private Button autoBuildButton;
+	
+	private Button workspaceLocationButton;
 
     private Button autoSaveAllButton;
 
@@ -111,8 +113,9 @@ public class IDEWorkspacePreferencePage extends PreferencePage
 		space.setLayoutData(new GridData());
 		
         createWindowWorkspaceLocation(composite);
-		
-        createAutoBuildPref(composite);
+	createWorkspaceLocationPref(composite);
+        
+	createAutoBuildPref(composite);
         createAutoRefreshControls(composite);
         createSaveAllBeforeBuildPref(composite);
         createCloseUnrelatedProjPrefControls(composite);
@@ -220,6 +223,16 @@ public class IDEWorkspacePreferencePage extends PreferencePage
         autoBuildButton.setSelection(ResourcesPlugin.getWorkspace()
                 .isAutoBuilding());
     }
+    
+    protected void createWorkspaceLocationPref(Composite composite) {
+        workspaceLocationButton = new Button(composite, SWT.CHECK);
+        workspaceLocationButton.setText("Set Workspace preference"); //$NON-NLS-1$
+        workspaceLocationButton.setToolTipText(IDEWorkbenchMessages.IDEWorkspacePreference_autobuildToolTip);
+        workspaceLocationButton.setSelection(getIDEPreferenceStore().getBoolean(
+                IDEInternalPreferences.WORKSPACE_LOCATION_PREF));
+    }
+    
+
 
     /**
      * Create a composite that contains entry fields specifying save interval
@@ -455,6 +468,8 @@ public class IDEWorkspacePreferencePage extends PreferencePage
      */
     protected void performDefaults() {
 
+  
+    	
         // core holds onto this preference.
         boolean autoBuild = ResourcesPlugin.getPlugin().getPluginPreferences()
                 .getDefaultBoolean(ResourcesPlugin.PREF_AUTO_BUILDING);
@@ -466,6 +481,12 @@ public class IDEWorkspacePreferencePage extends PreferencePage
                         .getDefaultBoolean(IDEInternalPreferences.SAVE_ALL_BEFORE_BUILD));
         saveInterval.loadDefault();
         workspaceName.loadDefault();
+        
+        
+        workspaceLocationButton
+                .setSelection(store
+                        .getDefaultBoolean(IDEInternalPreferences.WORKSPACE_LOCATION_PREF));
+      
         
         boolean closeUnrelatedProj = store.getDefaultBoolean(IDEInternalPreferences.CLOSE_UNRELATED_PROJECTS);
         closeUnrelatedProjectButton.setSelection(closeUnrelatedProj);
@@ -516,6 +537,10 @@ public class IDEWorkspacePreferencePage extends PreferencePage
         // store the save all prior to build setting
         store.setValue(IDEInternalPreferences.SAVE_ALL_BEFORE_BUILD,
                 autoSaveAllButton.getSelection());
+        
+     // store the save all prior to build setting
+        store.setValue(IDEInternalPreferences.WORKSPACE_LOCATION_PREF,
+                workspaceLocationButton.getSelection());
 
         // store the workspace save interval
         // @issue we should drop our preference constant and let clients use
