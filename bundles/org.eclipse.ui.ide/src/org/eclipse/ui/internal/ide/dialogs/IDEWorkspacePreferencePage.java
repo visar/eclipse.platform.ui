@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchEncoding;
@@ -66,6 +67,10 @@ public class IDEWorkspacePreferencePage extends PreferencePage
     private IntegerFieldEditor saveInterval;
 
 	private FieldEditor workspaceName;
+	
+	private Label workspaceLocationLabel;
+	
+	private Text workspaceLocationText;
 
 	private Button autoRefreshButton;
 
@@ -112,6 +117,7 @@ public class IDEWorkspacePreferencePage extends PreferencePage
         createCloseUnrelatedProjPrefControls(composite);
         
         createSpace(composite);
+        createWorkspaceLocationPref(composite);
         createSaveIntervalGroup(composite);
         createWindowTitleGroup(composite);
 		createSpace(composite);
@@ -181,6 +187,33 @@ public class IDEWorkspacePreferencePage extends PreferencePage
         autoBuildButton.setToolTipText(IDEWorkbenchMessages.IDEWorkspacePreference_autobuildToolTip);
         autoBuildButton.setSelection(ResourcesPlugin.getWorkspace()
                 .isAutoBuilding());
+    }
+    
+    /**
+    * Creates the labels which will contain the
+    * current workspace the user has set.
+    */
+    private void createWorkspaceLocationPref(Composite parent) {
+    	
+    	Composite groupComposite = new Composite(parent, SWT.LEFT);
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 2;
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        groupComposite.setLayout(layout);
+        GridData gd = new GridData();
+        gd.horizontalAlignment = GridData.FILL;
+        gd.grabExcessHorizontalSpace = true;
+        groupComposite.setLayoutData(gd);
+        
+    	this.workspaceLocationLabel = new Label(groupComposite, SWT.LEFT);
+    	this.workspaceLocationLabel.setText(IDEWorkbenchMessages.IDEWorkspacePreference_workspaceLocation);
+    	
+    	String location = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+    	this.workspaceLocationText = new Text(groupComposite, SWT.WRAP | SWT.READ_ONLY);
+    	this.workspaceLocationText.setText(location);
+    	this.workspaceLocationText.setBackground(this.workspaceLocationText.getDisplay().getSystemColor(
+				SWT.COLOR_WIDGET_BACKGROUND));
     }
 
     /**
