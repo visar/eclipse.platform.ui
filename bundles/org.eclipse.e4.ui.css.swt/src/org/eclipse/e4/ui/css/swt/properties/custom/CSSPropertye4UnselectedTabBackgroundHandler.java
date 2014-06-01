@@ -21,6 +21,7 @@ public class CSSPropertye4UnselectedTabBackgroundHandler extends AbstractCSSProp
 		if (!(control instanceof CTabFolder)) {
 			return;
 		}
+
 		if (value.getCssValueType() == CSSValue.CSS_PRIMITIVE_VALUE) {
 			Color newColor = (Color) engine.convert(value, Color.class, control.getDisplay());
 			CTabFolderRenderer renderer = ((CTabFolder) control).getRenderer();
@@ -30,22 +31,19 @@ public class CSSPropertye4UnselectedTabBackgroundHandler extends AbstractCSSProp
 		}
 
 		if (value.getCssValueType() == CSSValue.CSS_VALUE_LIST) {
-			Gradient grad = (Gradient) engine.convert(value, Gradient.class,
-					control.getDisplay());
+			Gradient grad = (Gradient) engine.convert(value, Gradient.class, control.getDisplay());
 			if (grad == null) {
 				return;
 			}
 			Color[] colors = null;
 			int[] percents = null;
 			if (!grad.getValues().isEmpty()) {
-				colors = CSSSWTColorHelper.getSWTColors(grad,
-						control.getDisplay(), engine);
+				colors = CSSSWTColorHelper.getSWTColors(grad, control.getDisplay(), engine);
 				percents = CSSSWTColorHelper.getPercents(grad);
 			}
 			CTabFolderRenderer renderer = ((CTabFolder) control).getRenderer();
 			if (renderer instanceof ICTabRendering) {
-				((ICTabRendering) renderer).setUnselectedTabBackgroundColors(
-						colors, percents);
+				((ICTabRendering) renderer).setUnselectedTabBackgroundColors(colors, percents);
 			}
 		}
 	}
